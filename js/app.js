@@ -1,6 +1,9 @@
 (function (window) {
 	'use strict';
 	// todoheader 模板
+	Vue.directive("edit-focus", function(newValue) {
+		this.el.focus();
+	})
 	var TodoHeader = Vue.extend({
 		data: function() {
 			return {
@@ -32,7 +35,7 @@
 				<label @dblclick="edit">{{item.text}}</label>\
 				<button @click="destroyitem" @dblclick="edit" class="destroy"></button>\
 			</div>\
-			<input id="inputtext" v-el:input @blur="blurHander" class="edit" value={{item.text}}>\
+			<input v-edit-focus="editing" @keyup.enter="edited" v-el:input @blur="blurHander" class="edit" v-model="item.text">\
 		</li>',
 		methods: {
 			destroyitem: function() {
@@ -40,9 +43,9 @@
 			},
 			edit: function() {
 				this.editing = true;
-				setTimeout(function() {
-					this.$els.input.focus()
-				}.bind(this), 100)
+			},
+			edited: function() {
+				this.editing = false;
 			},
 			blurHander: function() {
 				this.editing = false;
@@ -88,7 +91,6 @@
 			<button class="clear-completed">Clear completed</button>\
 		</footer>',
 		beforeCompile: function() {
-			console.log(111)
 		}
 	})
 	var TodoApp = Vue.extend({
