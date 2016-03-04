@@ -20,26 +20,41 @@
 	})
 	// todoitem 模板
 	var TodoItem = Vue.extend({
-		props: ["$index", "item", "alertme"],
-		template: '<li :class="{completed: item.state}">\
-			<div class="view">\
-				<input @click="clickme" class="toggle" type="checkbox" v-model="item.state">\
-				<label>{{item.text}}</label>\
-				<button class="destroy"></button>\
-			</div>\
-			<input class="edit" value="Create a TodoMVC template">\
-		</li>',
-		methods: {
-			clickme: function() {
-				this.alertme(this.$index)
+		props: ["$index", "item"],
+		data: function() {
+			return {
+				editing: false
 			}
 		},
+		template: '<li :class="{completed: item.state, editing: editing}">\
+			<div class="view">\
+				<input class="toggle" type="checkbox" v-model="item.state">\
+				<label @dblclick="edit">{{item.text}}</label>\
+				<button @click="destroyitem" @dblclick="edit" class="destroy"></button>\
+			</div>\
+			<input id="inputtext" v-el:input @blur="blurHander" class="edit" value={{item.text}}>\
+		</li>',
+		methods: {
+			destroyitem: function() {
+				this.$dispatch("destroyitem", this.$index)
+			},
+			edit: function() {
+				this.editing = true;
+				setTimeout(function() {
+					this.$els.input.focus()
+				}.bind(this), 100)
+			},
+			blurHander: function() {
+				this.editing = false;
+			},
+		},
 		beforeCompile: function() {
-		}
+		},
+
 	})
 	// todomain 模板
 	var TodoMain = Vue.extend({
-		props: ["todolists", "alertme"],
+		props: ["todolists"],
 		template: '<section class="main">\
 			<input class="toggle-all" type="checkbox">\
 			<label for="toggle-all">Mark all as complete</label>\
@@ -48,7 +63,6 @@
 					v-for="item in todolists"\
 					:$index="$index"\
 					:item="item"\
-					:alertme="alertme">\
 				</todo-item>\
 			</ul>\
 		</section>',
@@ -74,15 +88,15 @@
 			<button class="clear-completed">Clear completed</button>\
 		</footer>',
 		beforeCompile: function() {
+			console.log(111)
 		}
 	})
 	var TodoApp = Vue.extend({
-		props: ["todolists", "alertme", "active"],
+		props: ["todolists", "active"],
 		template: '<section class="todoapp">\
 			<todo-header></todo-header>\
 			<todo-main\
-				:todolists="todolists"\
-				:alertme="alertme">\
+				:todolists="todolists">\
 			</todo-main>\
 			<todo-footer :active="active"></todo-footer>\
 		</section>',
@@ -136,6 +150,9 @@
 				var newTodo = {key: this.key, text: newtext, state: false};
 				this.$set("todolists", this.todolists.concat(newTodo));
 			},
+			"destroyitem": function(index) {
+				this.todolists.splice(index, 1)
+			}
 		},
 		beforeCompile: function() {
 		}
