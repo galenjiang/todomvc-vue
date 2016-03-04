@@ -147,7 +147,6 @@
 		},
 		events: {
 			"add-todo": function(newtext) {
-				console.log(newtext);
 				this.key ++;
 				var newTodo = {key: this.key, text: newtext, state: false};
 				this.$set("todolists", this.todolists.concat(newTodo));
@@ -159,5 +158,4 @@
 		beforeCompile: function() {
 		}
 	})
-
 })(window);
